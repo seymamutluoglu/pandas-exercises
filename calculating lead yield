@@ -1,1 +1,729 @@
-{"metadata":{"kernelspec":{"language":"python","display_name":"Python 3","name":"python3"},"language_info":{"name":"python","version":"3.10.14","mimetype":"text/x-python","codemirror_mode":{"name":"ipython","version":3},"pygments_lexer":"ipython3","nbconvert_exporter":"python","file_extension":".py"},"kaggle":{"accelerator":"none","dataSources":[{"sourceId":9297048,"sourceType":"datasetVersion","datasetId":5628930}],"dockerImageVersionId":30761,"isInternetEnabled":true,"language":"python","sourceType":"notebook","isGpuEnabled":false}},"nbformat_minor":4,"nbformat":4,"cells":[{"cell_type":"code","source":"# This Python 3 environment comes with many helpful analytics libraries installed\n# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n# For example, here's several helpful packages to load\n\nimport numpy as np # linear algebra\nimport pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n\n# Input data files are available in the read-only \"../input/\" directory\n# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n\nimport os\nfor dirname, _, filenames in os.walk('/kaggle/input'):\n    for filename in filenames:\n        print(os.path.join(dirname, filename))\n\n# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session","metadata":{"_uuid":"8f2839f25d086af736a60e9eeb907d3b93b6e0e5","_cell_guid":"b1076dfc-b9ad-4769-8c92-a6c4dae69d19","execution":{"iopub.status.busy":"2024-09-01T22:19:08.547269Z","iopub.execute_input":"2024-09-01T22:19:08.547726Z","iopub.status.idle":"2024-09-01T22:19:08.560393Z","shell.execute_reply.started":"2024-09-01T22:19:08.547682Z","shell.execute_reply":"2024-09-01T22:19:08.559104Z"},"trusted":true},"execution_count":5,"outputs":[{"name":"stdout","text":"/kaggle/input/persona/persona.csv\n","output_type":"stream"}]},{"cell_type":"code","source":"import pandas as pd\nimport seaborn as sns\nimport matplotlib.pyplot as plt\npd.set_option('display.max_coLumns', None)\npd.set_option('display.width', 500)","metadata":{"execution":{"iopub.status.busy":"2024-09-02T13:35:11.186526Z","iopub.execute_input":"2024-09-02T13:35:11.187450Z","iopub.status.idle":"2024-09-02T13:35:12.315264Z","shell.execute_reply.started":"2024-09-02T13:35:11.187403Z","shell.execute_reply":"2024-09-02T13:35:12.314249Z"},"trusted":true},"execution_count":3,"outputs":[]},{"cell_type":"code","source":"df = pd.read_csv(\"/kaggle/input/persona/persona.csv\")\ndf.head()","metadata":{"execution":{"iopub.status.busy":"2024-09-02T13:35:16.618126Z","iopub.execute_input":"2024-09-02T13:35:16.619166Z","iopub.status.idle":"2024-09-02T13:35:16.656385Z","shell.execute_reply.started":"2024-09-02T13:35:16.619120Z","shell.execute_reply":"2024-09-02T13:35:16.655438Z"},"trusted":true},"execution_count":4,"outputs":[{"execution_count":4,"output_type":"execute_result","data":{"text/plain":"   PRICE   SOURCE   SEX COUNTRY  AGE\n0     39  android  male     bra   17\n1     39  android  male     bra   17\n2     49  android  male     bra   17\n3     29  android  male     tur   17\n4     49  android  male     tur   17","text/html":"<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>PRICE</th>\n      <th>SOURCE</th>\n      <th>SEX</th>\n      <th>COUNTRY</th>\n      <th>AGE</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>39</td>\n      <td>android</td>\n      <td>male</td>\n      <td>bra</td>\n      <td>17</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>39</td>\n      <td>android</td>\n      <td>male</td>\n      <td>bra</td>\n      <td>17</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>49</td>\n      <td>android</td>\n      <td>male</td>\n      <td>bra</td>\n      <td>17</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>29</td>\n      <td>android</td>\n      <td>male</td>\n      <td>tur</td>\n      <td>17</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>49</td>\n      <td>android</td>\n      <td>male</td>\n      <td>tur</td>\n      <td>17</td>\n    </tr>\n  </tbody>\n</table>\n</div>"},"metadata":{}}]},{"cell_type":"code","source":"uni_source = df[\"SOURCE\"].unique()\nprint(uni_source)\ndf[\"SOURCE\"].value_counts()","metadata":{"execution":{"iopub.status.busy":"2024-09-01T22:21:10.475521Z","iopub.execute_input":"2024-09-01T22:21:10.476111Z","iopub.status.idle":"2024-09-01T22:21:10.494362Z","shell.execute_reply.started":"2024-09-01T22:21:10.476059Z","shell.execute_reply":"2024-09-01T22:21:10.493016Z"},"trusted":true},"execution_count":13,"outputs":[{"name":"stdout","text":"['android' 'ios']\n","output_type":"stream"},{"execution_count":13,"output_type":"execute_result","data":{"text/plain":"SOURCE\nandroid    2974\nios        2026\nName: count, dtype: int64"},"metadata":{}}]},{"cell_type":"code","source":"price_frequencies = df['PRICE'].value_counts()\nprint(price_frequencies)","metadata":{"execution":{"iopub.status.busy":"2024-09-01T22:25:03.440434Z","iopub.execute_input":"2024-09-01T22:25:03.440954Z","iopub.status.idle":"2024-09-01T22:25:03.451518Z","shell.execute_reply.started":"2024-09-01T22:25:03.440909Z","shell.execute_reply":"2024-09-01T22:25:03.449941Z"},"trusted":true},"execution_count":14,"outputs":[{"name":"stdout","text":"PRICE\n29    1305\n39    1260\n49    1031\n19     992\n59     212\n9      200\nName: count, dtype: int64\n","output_type":"stream"}]},{"cell_type":"code","source":"country_count = df['COUNTRY'].value_counts()\nprint(country_count)","metadata":{"execution":{"iopub.status.busy":"2024-09-01T22:26:30.272538Z","iopub.execute_input":"2024-09-01T22:26:30.273212Z","iopub.status.idle":"2024-09-01T22:26:30.284396Z","shell.execute_reply.started":"2024-09-01T22:26:30.273150Z","shell.execute_reply":"2024-09-01T22:26:30.282854Z"},"trusted":true},"execution_count":15,"outputs":[{"name":"stdout","text":"COUNTRY\nusa    2065\nbra    1496\ndeu     455\ntur     451\nfra     303\ncan     230\nName: count, dtype: int64\n","output_type":"stream"}]},{"cell_type":"code","source":"country_revenue = df.groupby('COUNTRY')['PRICE'].sum()\nprint(country_revenue)","metadata":{"execution":{"iopub.status.busy":"2024-09-01T22:28:32.860694Z","iopub.execute_input":"2024-09-01T22:28:32.861169Z","iopub.status.idle":"2024-09-01T22:28:32.877826Z","shell.execute_reply.started":"2024-09-01T22:28:32.861125Z","shell.execute_reply":"2024-09-01T22:28:32.876616Z"},"trusted":true},"execution_count":16,"outputs":[{"name":"stdout","text":"COUNTRY\nbra    51354\ncan     7730\ndeu    15485\nfra    10177\ntur    15689\nusa    70225\nName: PRICE, dtype: int64\n","output_type":"stream"}]},{"cell_type":"code","source":"price_mean = df.groupby('COUNTRY')['PRICE'].mean()\nprint(price_mean)","metadata":{"execution":{"iopub.status.busy":"2024-09-01T22:34:15.908779Z","iopub.execute_input":"2024-09-01T22:34:15.910185Z","iopub.status.idle":"2024-09-01T22:34:15.922387Z","shell.execute_reply.started":"2024-09-01T22:34:15.910135Z","shell.execute_reply":"2024-09-01T22:34:15.921002Z"},"trusted":true},"execution_count":17,"outputs":[{"name":"stdout","text":"COUNTRY\nbra    34.327540\ncan    33.608696\ndeu    34.032967\nfra    33.587459\ntur    34.787140\nusa    34.007264\nName: PRICE, dtype: float64\n","output_type":"stream"}]},{"cell_type":"code","source":"country_source_mean = df.groupby(['COUNTRY', 'SOURCE'])['PRICE'].mean()\nprint(country_source_mean)","metadata":{"execution":{"iopub.status.busy":"2024-09-01T22:39:29.236412Z","iopub.execute_input":"2024-09-01T22:39:29.237808Z","iopub.status.idle":"2024-09-01T22:39:29.250411Z","shell.execute_reply.started":"2024-09-01T22:39:29.237744Z","shell.execute_reply":"2024-09-01T22:39:29.249220Z"},"trusted":true},"execution_count":18,"outputs":[{"name":"stdout","text":"COUNTRY  SOURCE \nbra      android    34.387029\n         ios        34.222222\ncan      android    33.330709\n         ios        33.951456\ndeu      android    33.869888\n         ios        34.268817\nfra      android    34.312500\n         ios        32.776224\ntur      android    36.229437\n         ios        33.272727\nusa      android    33.760357\n         ios        34.371703\nName: PRICE, dtype: float64\n","output_type":"stream"}]},{"cell_type":"code","source":"country_source_sex_age_price_mean = df.groupby(['COUNTRY', 'SOURCE', 'SEX', 'AGE'])['PRICE'].mean()\nprint(country_source_sex_age_price_mean )","metadata":{"execution":{"iopub.status.busy":"2024-09-01T22:46:53.048127Z","iopub.execute_input":"2024-09-01T22:46:53.048612Z","iopub.status.idle":"2024-09-01T22:46:53.063297Z","shell.execute_reply.started":"2024-09-01T22:46:53.048568Z","shell.execute_reply":"2024-09-01T22:46:53.062160Z"},"trusted":true},"execution_count":19,"outputs":[{"name":"stdout","text":"COUNTRY  SOURCE   SEX     AGE\nbra      android  female  15     38.714286\n                          16     35.944444\n                          17     35.666667\n                          18     32.255814\n                          19     35.206897\n                                   ...    \nusa      ios      male    42     30.250000\n                          50     39.000000\n                          53     34.000000\n                          55     29.000000\n                          59     46.500000\nName: PRICE, Length: 348, dtype: float64\n","output_type":"stream"}]},{"cell_type":"code","source":"agg_df = df.groupby(['COUNTRY', 'SOURCE', 'SEX', 'AGE'])['PRICE'].mean()\nagg_df = agg_df.sort_values(ascending=False)\nprint(agg_df)","metadata":{"execution":{"iopub.status.busy":"2024-09-01T22:49:35.595764Z","iopub.execute_input":"2024-09-01T22:49:35.596799Z","iopub.status.idle":"2024-09-01T22:49:35.613539Z","shell.execute_reply.started":"2024-09-01T22:49:35.596735Z","shell.execute_reply":"2024-09-01T22:49:35.612152Z"},"trusted":true},"execution_count":20,"outputs":[{"name":"stdout","text":"COUNTRY  SOURCE   SEX     AGE\nbra      android  male    46     59.0\nusa      android  male    36     59.0\nfra      android  female  24     59.0\nusa      ios      male    32     54.0\ndeu      android  female  36     49.0\n                                 ... \nusa      ios      female  38     19.0\n                          30     19.0\ncan      android  female  27     19.0\nfra      android  male    18     19.0\ndeu      android  male    26      9.0\nName: PRICE, Length: 348, dtype: float64\n","output_type":"stream"}]},{"cell_type":"code","source":"agg_df = agg_df.reset_index()\nprint(agg_df)","metadata":{"execution":{"iopub.status.busy":"2024-09-01T22:55:00.058583Z","iopub.execute_input":"2024-09-01T22:55:00.059628Z","iopub.status.idle":"2024-09-01T22:55:00.073658Z","shell.execute_reply.started":"2024-09-01T22:55:00.059570Z","shell.execute_reply":"2024-09-01T22:55:00.072359Z"},"trusted":true},"execution_count":22,"outputs":[{"name":"stdout","text":"     index COUNTRY   SOURCE     SEX  AGE  PRICE\n0        0     bra  android    male   46   59.0\n1        1     usa  android    male   36   59.0\n2        2     fra  android  female   24   59.0\n3        3     usa      ios    male   32   54.0\n4        4     deu  android  female   36   49.0\n..     ...     ...      ...     ...  ...    ...\n343    343     usa      ios  female   38   19.0\n344    344     usa      ios  female   30   19.0\n345    345     can  android  female   27   19.0\n346    346     fra  android    male   18   19.0\n347    347     deu  android    male   26    9.0\n\n[348 rows x 6 columns]\n","output_type":"stream"}]},{"cell_type":"code","source":"bins = [0, 18, 23, 30, 40, 70]\nlabels = ['0_18', '19_23', '24_30', '31_40', '41_70']\n\n\ndf['age_category'] = pd.cut(df['AGE'], bins=bins, labels=labels)\n\n\nprint( df[['AGE', 'age_category']].head())","metadata":{"execution":{"iopub.status.busy":"2024-09-02T13:35:19.998299Z","iopub.execute_input":"2024-09-02T13:35:19.998713Z","iopub.status.idle":"2024-09-02T13:35:20.019749Z","shell.execute_reply.started":"2024-09-02T13:35:19.998670Z","shell.execute_reply":"2024-09-02T13:35:20.018604Z"},"trusted":true},"execution_count":5,"outputs":[{"name":"stdout","text":"   AGE age_category\n0   17         0_18\n1   17         0_18\n2   17         0_18\n3   17         0_18\n4   17         0_18\n","output_type":"stream"}]},{"cell_type":"code","source":"df['customers_level_based'] = df.apply(lambda x: f\"{x['COUNTRY'].upper()}_{x['SOURCE'].upper()}_{x['SEX'].upper()}_{x['age_category']}\", axis=1)\nagg_df = df.groupby('customers_level_based').agg({'PRICE': 'mean'}).reset_index()\nprint(agg_df.head())","metadata":{"execution":{"iopub.status.busy":"2024-09-02T13:54:18.299131Z","iopub.execute_input":"2024-09-02T13:54:18.299516Z","iopub.status.idle":"2024-09-02T13:54:18.404249Z","shell.execute_reply.started":"2024-09-02T13:54:18.299477Z","shell.execute_reply":"2024-09-02T13:54:18.403228Z"},"trusted":true},"execution_count":6,"outputs":[{"name":"stdout","text":"      customers_level_based      PRICE\n0   BRA_ANDROID_FEMALE_0_18  35.439394\n1  BRA_ANDROID_FEMALE_19_23  34.114943\n2  BRA_ANDROID_FEMALE_24_30  34.540541\n3  BRA_ANDROID_FEMALE_31_40  34.696203\n4  BRA_ANDROID_FEMALE_41_70  35.086957\n","output_type":"stream"}]}]}
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "db715b50",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:08.718758Z",
+     "iopub.status.busy": "2024-09-02T17:17:08.718312Z",
+     "iopub.status.idle": "2024-09-02T17:17:09.189454Z",
+     "shell.execute_reply": "2024-09-02T17:17:09.188241Z"
+    },
+    "papermill": {
+     "duration": 0.481852,
+     "end_time": "2024-09-02T17:17:09.192555",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:08.710703",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "/kaggle/input/persona/persona.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "# This Python 3 environment comes with many helpful analytics libraries installed\n",
+    "# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n",
+    "# For example, here's several helpful packages to load\n",
+    "\n",
+    "import numpy as np # linear algebra\n",
+    "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+    "\n",
+    "# Input data files are available in the read-only \"../input/\" directory\n",
+    "# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n",
+    "\n",
+    "import os\n",
+    "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "    for filename in filenames:\n",
+    "        print(os.path.join(dirname, filename))\n",
+    "\n",
+    "# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n",
+    "# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "a55cc06c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:09.207860Z",
+     "iopub.status.busy": "2024-09-02T17:17:09.207312Z",
+     "iopub.status.idle": "2024-09-02T17:17:10.923928Z",
+     "shell.execute_reply": "2024-09-02T17:17:10.922934Z"
+    },
+    "papermill": {
+     "duration": 1.726654,
+     "end_time": "2024-09-02T17:17:10.926810",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:09.200156",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import seaborn as sns\n",
+    "import matplotlib.pyplot as plt\n",
+    "pd.set_option('display.max_coLumns', None)\n",
+    "pd.set_option('display.width', 500)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "f3fc96a7",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:10.940984Z",
+     "iopub.status.busy": "2024-09-02T17:17:10.939952Z",
+     "iopub.status.idle": "2024-09-02T17:17:10.987302Z",
+     "shell.execute_reply": "2024-09-02T17:17:10.986169Z"
+    },
+    "papermill": {
+     "duration": 0.057184,
+     "end_time": "2024-09-02T17:17:10.989886",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:10.932702",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>PRICE</th>\n",
+       "      <th>SOURCE</th>\n",
+       "      <th>SEX</th>\n",
+       "      <th>COUNTRY</th>\n",
+       "      <th>AGE</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>39</td>\n",
+       "      <td>android</td>\n",
+       "      <td>male</td>\n",
+       "      <td>bra</td>\n",
+       "      <td>17</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>39</td>\n",
+       "      <td>android</td>\n",
+       "      <td>male</td>\n",
+       "      <td>bra</td>\n",
+       "      <td>17</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>49</td>\n",
+       "      <td>android</td>\n",
+       "      <td>male</td>\n",
+       "      <td>bra</td>\n",
+       "      <td>17</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>29</td>\n",
+       "      <td>android</td>\n",
+       "      <td>male</td>\n",
+       "      <td>tur</td>\n",
+       "      <td>17</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>49</td>\n",
+       "      <td>android</td>\n",
+       "      <td>male</td>\n",
+       "      <td>tur</td>\n",
+       "      <td>17</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   PRICE   SOURCE   SEX COUNTRY  AGE\n",
+       "0     39  android  male     bra   17\n",
+       "1     39  android  male     bra   17\n",
+       "2     49  android  male     bra   17\n",
+       "3     29  android  male     tur   17\n",
+       "4     49  android  male     tur   17"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df = pd.read_csv(\"/kaggle/input/persona/persona.csv\")\n",
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "95386263",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.004275Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.003656Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.021376Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.020065Z"
+    },
+    "papermill": {
+     "duration": 0.028383,
+     "end_time": "2024-09-02T17:17:11.024294",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:10.995911",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['android' 'ios']\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "SOURCE\n",
+       "android    2974\n",
+       "ios        2026\n",
+       "Name: count, dtype: int64"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "uni_source = df[\"SOURCE\"].unique()\n",
+    "print(uni_source)\n",
+    "df[\"SOURCE\"].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "1856f25f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.038095Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.037715Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.045744Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.044674Z"
+    },
+    "papermill": {
+     "duration": 0.01865,
+     "end_time": "2024-09-02T17:17:11.049012",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.030362",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "PRICE\n",
+      "29    1305\n",
+      "39    1260\n",
+      "49    1031\n",
+      "19     992\n",
+      "59     212\n",
+      "9      200\n",
+      "Name: count, dtype: int64\n"
+     ]
+    }
+   ],
+   "source": [
+    "price_frequencies = df['PRICE'].value_counts()\n",
+    "print(price_frequencies)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "2fa8c288",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.063989Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.063085Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.070960Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.069810Z"
+    },
+    "papermill": {
+     "duration": 0.019001,
+     "end_time": "2024-09-02T17:17:11.074427",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.055426",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "COUNTRY\n",
+      "usa    2065\n",
+      "bra    1496\n",
+      "deu     455\n",
+      "tur     451\n",
+      "fra     303\n",
+      "can     230\n",
+      "Name: count, dtype: int64\n"
+     ]
+    }
+   ],
+   "source": [
+    "country_count = df['COUNTRY'].value_counts()\n",
+    "print(country_count)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "84f22646",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.088661Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.088240Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.102845Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.101522Z"
+    },
+    "papermill": {
+     "duration": 0.024522,
+     "end_time": "2024-09-02T17:17:11.105363",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.080841",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "COUNTRY\n",
+      "bra    51354\n",
+      "can     7730\n",
+      "deu    15485\n",
+      "fra    10177\n",
+      "tur    15689\n",
+      "usa    70225\n",
+      "Name: PRICE, dtype: int64\n"
+     ]
+    }
+   ],
+   "source": [
+    "country_revenue = df.groupby('COUNTRY')['PRICE'].sum()\n",
+    "print(country_revenue)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "5b0f7e3b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.119944Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.119515Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.131582Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.130301Z"
+    },
+    "papermill": {
+     "duration": 0.022506,
+     "end_time": "2024-09-02T17:17:11.134355",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.111849",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "COUNTRY\n",
+      "bra    34.327540\n",
+      "can    33.608696\n",
+      "deu    34.032967\n",
+      "fra    33.587459\n",
+      "tur    34.787140\n",
+      "usa    34.007264\n",
+      "Name: PRICE, dtype: float64\n"
+     ]
+    }
+   ],
+   "source": [
+    "price_mean = df.groupby('COUNTRY')['PRICE'].mean()\n",
+    "print(price_mean)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "0e73443f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.148550Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.148147Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.159827Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.158546Z"
+    },
+    "papermill": {
+     "duration": 0.021531,
+     "end_time": "2024-09-02T17:17:11.162315",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.140784",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "COUNTRY  SOURCE \n",
+      "bra      android    34.387029\n",
+      "         ios        34.222222\n",
+      "can      android    33.330709\n",
+      "         ios        33.951456\n",
+      "deu      android    33.869888\n",
+      "         ios        34.268817\n",
+      "fra      android    34.312500\n",
+      "         ios        32.776224\n",
+      "tur      android    36.229437\n",
+      "         ios        33.272727\n",
+      "usa      android    33.760357\n",
+      "         ios        34.371703\n",
+      "Name: PRICE, dtype: float64\n"
+     ]
+    }
+   ],
+   "source": [
+    "country_source_mean = df.groupby(['COUNTRY', 'SOURCE'])['PRICE'].mean()\n",
+    "print(country_source_mean)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "7f467344",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.177644Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.176857Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.190253Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.188936Z"
+    },
+    "papermill": {
+     "duration": 0.023731,
+     "end_time": "2024-09-02T17:17:11.192655",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.168924",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "COUNTRY  SOURCE   SEX     AGE\n",
+      "bra      android  female  15     38.714286\n",
+      "                          16     35.944444\n",
+      "                          17     35.666667\n",
+      "                          18     32.255814\n",
+      "                          19     35.206897\n",
+      "                                   ...    \n",
+      "usa      ios      male    42     30.250000\n",
+      "                          50     39.000000\n",
+      "                          53     34.000000\n",
+      "                          55     29.000000\n",
+      "                          59     46.500000\n",
+      "Name: PRICE, Length: 348, dtype: float64\n"
+     ]
+    }
+   ],
+   "source": [
+    "country_source_sex_age_price_mean = df.groupby(['COUNTRY', 'SOURCE', 'SEX', 'AGE'])['PRICE'].mean()\n",
+    "print(country_source_sex_age_price_mean )"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "02f4eb2e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.208650Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.207784Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.221579Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.220324Z"
+    },
+    "papermill": {
+     "duration": 0.024525,
+     "end_time": "2024-09-02T17:17:11.223983",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.199458",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "COUNTRY  SOURCE   SEX     AGE\n",
+      "bra      android  male    46     59.0\n",
+      "usa      android  male    36     59.0\n",
+      "fra      android  female  24     59.0\n",
+      "usa      ios      male    32     54.0\n",
+      "deu      android  female  36     49.0\n",
+      "                                 ... \n",
+      "usa      ios      female  38     19.0\n",
+      "                          30     19.0\n",
+      "can      android  female  27     19.0\n",
+      "fra      android  male    18     19.0\n",
+      "deu      android  male    26      9.0\n",
+      "Name: PRICE, Length: 348, dtype: float64\n"
+     ]
+    }
+   ],
+   "source": [
+    "agg_df = df.groupby(['COUNTRY', 'SOURCE', 'SEX', 'AGE'])['PRICE'].mean()\n",
+    "agg_df = agg_df.sort_values(ascending=False)\n",
+    "print(agg_df)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "dac3233a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.239955Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.238998Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.255935Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.254574Z"
+    },
+    "papermill": {
+     "duration": 0.028342,
+     "end_time": "2024-09-02T17:17:11.259074",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.230732",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "    COUNTRY   SOURCE     SEX  AGE  PRICE\n",
+      "0       bra  android    male   46   59.0\n",
+      "1       usa  android    male   36   59.0\n",
+      "2       fra  android  female   24   59.0\n",
+      "3       usa      ios    male   32   54.0\n",
+      "4       deu  android  female   36   49.0\n",
+      "..      ...      ...     ...  ...    ...\n",
+      "343     usa      ios  female   38   19.0\n",
+      "344     usa      ios  female   30   19.0\n",
+      "345     can  android  female   27   19.0\n",
+      "346     fra  android    male   18   19.0\n",
+      "347     deu  android    male   26    9.0\n",
+      "\n",
+      "[348 rows x 5 columns]\n"
+     ]
+    }
+   ],
+   "source": [
+    "agg_df = agg_df.reset_index()\n",
+    "print(agg_df)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "4205f2b2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.275035Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.274602Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.289347Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.288093Z"
+    },
+    "papermill": {
+     "duration": 0.025494,
+     "end_time": "2024-09-02T17:17:11.291864",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.266370",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   AGE age_category\n",
+      "0   17         0_18\n",
+      "1   17         0_18\n",
+      "2   17         0_18\n",
+      "3   17         0_18\n",
+      "4   17         0_18\n"
+     ]
+    }
+   ],
+   "source": [
+    "bins = [0, 18, 23, 30, 40, 70]\n",
+    "labels = ['0_18', '19_23', '24_30', '31_40', '41_70']\n",
+    "\n",
+    "\n",
+    "df['age_category'] = pd.cut(df['AGE'], bins=bins, labels=labels)\n",
+    "\n",
+    "\n",
+    "print( df[['AGE', 'age_category']].head())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "9fce0fe4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2024-09-02T17:17:11.307604Z",
+     "iopub.status.busy": "2024-09-02T17:17:11.307179Z",
+     "iopub.status.idle": "2024-09-02T17:17:11.463265Z",
+     "shell.execute_reply": "2024-09-02T17:17:11.461681Z"
+    },
+    "papermill": {
+     "duration": 0.166977,
+     "end_time": "2024-09-02T17:17:11.465896",
+     "exception": false,
+     "start_time": "2024-09-02T17:17:11.298919",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "      customers_level_based      PRICE\n",
+      "0   BRA_ANDROID_FEMALE_0_18  35.439394\n",
+      "1  BRA_ANDROID_FEMALE_19_23  34.114943\n",
+      "2  BRA_ANDROID_FEMALE_24_30  34.540541\n",
+      "3  BRA_ANDROID_FEMALE_31_40  34.696203\n",
+      "4  BRA_ANDROID_FEMALE_41_70  35.086957\n"
+     ]
+    }
+   ],
+   "source": [
+    "df['customers_level_based'] = df.apply(lambda x: f\"{x['COUNTRY'].upper()}_{x['SOURCE'].upper()}_{x['SEX'].upper()}_{x['age_category']}\", axis=1)\n",
+    "agg_df = df.groupby('customers_level_based').agg({'PRICE': 'mean'}).reset_index()\n",
+    "print(agg_df.head())"
+   ]
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "datasetId": 5628930,
+     "sourceId": 9297048,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "dockerImageVersionId": 30761,
+   "isGpuEnabled": false,
+   "isInternetEnabled": true,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.14"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 6.339725,
+   "end_time": "2024-09-02T17:17:12.095476",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2024-09-02T17:17:05.755751",
+   "version": "2.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
